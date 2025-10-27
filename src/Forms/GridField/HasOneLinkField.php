@@ -9,6 +9,7 @@ use SilverShop\HasOneField\GridFieldHasOneEditButton;
 use SilverShop\HasOneField\GridFieldSummaryField;
 use SilverShop\HasOneField\HasOneButtonField;
 use SilverStripe\Core\Convert;
+use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Forms\GridField\GridFieldConfig;
 use SilverStripe\ORM\DataObject;
 
@@ -85,26 +86,26 @@ class HasOneLinkField extends HasOneButtonField
      * {@inheritdoc}
      * @see \SilverStripe\Forms\FormField::validate()
      */
-    public function validate($validator)
+    public function validate(): ValidationResult
     {
-        $valid = parent::validate($validator);
-        if ($valid) {
+        $validator = parent::validate();
+        if ($validator->isValid()) {
             $result = $this->getRecord()->validate();
             $valid = $result->isValid();
             foreach ($result->getMessages() as $message) {
-                $validator->validationError($this->getName(), $message);
+                $validator->addError($this->getName(), $message);
             }
         }
-        if ($valid && $validator->fieldIsRequired($this->getName()) && !$this->getRecord()->Type) {
-            $valid = false;
+        // if ($valid && $validator->isRequired($this->getName()) && !$this->getRecord()->Type) {
+        //     $valid = false;
 
-            $errorMessage = _t('SilverStripe\\Forms\\Form.FIELDISREQUIRED', '{name} is required', [
-                'name' => strip_tags('"' . ($this->Title() ?: $this->getName()) . '"'),
-            ]);
+        //     $errorMessage = _t('SilverStripe\\Forms\\Form.FIELDISREQUIRED', '{name} is required', [
+        //         'name' => strip_tags('"' . ($this->Title() ?: $this->getName()) . '"'),
+        //     ]);
 
-            $validator->validationError($this->getName(), $errorMessage, 'required');
-        }
-        return $valid;
+        //     $validator->addError($this->getName(), $errorMessage, 'required');
+        // }
+        return $validator;
     }
 
     /**
